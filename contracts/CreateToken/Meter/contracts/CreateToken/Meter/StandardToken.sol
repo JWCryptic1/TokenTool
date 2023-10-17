@@ -8,7 +8,6 @@ import "@openzeppelin/contracts/utils/Address.sol";
 import "./SharedStructs.sol";
 
 contract StandardToken is Context, IERC20, IERC20Metadata {
-    // address public owner;
     address public owner;
 
     string private _name;
@@ -84,6 +83,9 @@ contract StandardToken is Context, IERC20, IERC20Metadata {
         uint256 tokenSupply_,
         SharedStructs.status memory _state
     ) {
+        if(_state.taxamount > 0){
+            require(state.taxaddress != address(0), "tax address must be supplied");
+        }
         _name = name_;
         _symbol = symbol_;
         _decimals = decimals_;
@@ -166,7 +168,14 @@ contract StandardToken is Context, IERC20, IERC20Metadata {
         override
         returns (bool)
     {
-        _transfer(_msgSender(), recipient, amount);
+        if(state.taxamount > 0){
+            uint256 tax = (amount / 100) * state.taxamount;
+            _transfer(_msgSender(), recipient, amount - tax);
+            _transfer(_msgSender(), state.taxaddress, tax);
+        } else {
+            _transfer(_msgSender(), recipient, amount);
+        }
+
         return true;
     }
 

@@ -12,15 +12,6 @@ import "./StandardTokenFactory.sol";
 import "./LiquidityTokenFactory.sol";
 
 contract CreateManage {
-    struct feeInfo {
-        uint256 normal;
-        uint256 mint;
-        uint256 burn;
-        uint256 pause;
-        uint256 blacklist;
-        uint256 deflation;
-    }
-
     address public owner;
 
     // address factory_address;
@@ -28,7 +19,7 @@ contract CreateManage {
 
     mapping(address => address[]) tokens;
 
-    feeInfo public fee;
+    uint256 public fee;
     StandardTokenFactory internal standardTokenFactory;
     LiquidityTokenFactory internal liquidityTokenFactory;
 
@@ -36,7 +27,7 @@ contract CreateManage {
     event CreateStandardSuccess(address);
     event setOwnerSucess(address);
     event createLiquditySuccess(address);
-    event InitFeeSuccess();
+    event SetFeeSuccess();
 
     // constructor(address _owner, address factory_addr, address router_Addr) {
     constructor(
@@ -47,8 +38,7 @@ contract CreateManage {
     ) {
         owner = _owner;
         
-        fee = feeInfo(10000000000000000000,10000000000000000000,10000000000000000000,10000000000000000000,10000000000000000000,10000000000000000000);
-
+        fee = 10000000000000000000;
 
         // factory_address = factory_addr;
         router_address = router_Addr;
@@ -64,48 +54,10 @@ contract CreateManage {
         emit setOwnerSucess(owner);
     }
 
-    function ownerWithdraw() public {
-        require(msg.sender == owner, "Only manager can withdraw");
-        address payable reciever = payable(owner);
-        reciever.transfer(address(this).balance);
-        // owner.transfer(address(this).balance);
-        emit OwnerWithdrawSuccess(address(this).balance);
-    }
-
-    function initFee(feeInfo memory _fee) public {
+    function setFee(uint256 _fee) public {
         fee = _fee;
-        emit InitFeeSuccess();
+        emit SetFeeSuccess();
     }
-
-    function calcFee(SharedStructs.status memory _state)
-        internal
-        view
-        returns (uint256)
-    {
-        uint256 totalfee = fee.normal;
-
-        if (_state.mintflag > 0) {
-            totalfee = totalfee + fee.mint;
-        }
-
-        if (_state.burnflag > 0) {
-            totalfee = totalfee + fee.burn;
-        }
-
-        if (_state.pauseflag > 0) {
-            totalfee = totalfee + fee.pause;
-        }
-
-        if (_state.blacklistflag > 0) {
-            totalfee = totalfee + fee.blacklist;
-        }
-
-        return totalfee;
-    }
-
-    /*
-     * @notice Creates a new Presale contract and registers it in the PresaleFactory.sol.
-     */
 
     function createStandard(
         address creator_,
@@ -115,7 +67,7 @@ contract CreateManage {
         uint256 tokenSupply_,
         SharedStructs.status memory _state
     ) public payable {
-        require(msg.value >= calcFee(_state), "Balance is insufficent");
+        require(msg.value >= fee, "Balance is insufficent");
 
         StandardToken token = standardTokenFactory.deploy(
             creator_,
@@ -127,6 +79,8 @@ contract CreateManage {
         );
 
         tokens[address(creator_)].push(address(token));
+        address payable reciever = payable(owner);
+        reciever.transfer(msg.value);
 
         emit CreateStandardSuccess(address(token));
     }
@@ -142,7 +96,7 @@ contract CreateManage {
         uint256[4] memory fees,
         SharedStructs.status memory _state
     ) public payable {
-        require(msg.value >= calcFee(_state), "Balance is insufficent");
+        require(msg.value >= fee, "Balance is insufficent");
 
         LiquidityToken token = liquidityTokenFactory.deploy(
             router_address,
@@ -156,6 +110,9 @@ contract CreateManage {
         token.setFee(settingflag, fees);
         token.setStatus(_state);
         tokens[creator_].push(address(token));
+
+        address payable owneraddress = payable(owner);
+        owneraddress.transfer(msg.value);
 
         emit createLiquditySuccess(address(token));
     }

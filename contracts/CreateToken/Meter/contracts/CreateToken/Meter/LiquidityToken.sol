@@ -71,10 +71,6 @@ contract LiquidityToken is Context, IERC20 {
         _;
     }
 
-    /**
-     * @dev Throws if called by any account other than the owner.
-     */
-
     modifier canMint() {
         require(state.mintflag > 0, "Mintable: Disabled Mint");
         _;
@@ -210,11 +206,6 @@ contract LiquidityToken is Context, IERC20 {
             _liquidityFee = fee[3];
         }
 
-        // if(settingflag != 0) {
-        //    _holdersfee = fee[0];
-        //     // _buybackFee = fee[1];
-        // }
-
         _previousTaxFee = _taxFee;
         _previousLiquidityFee = _liquidityFee;
     }
@@ -227,30 +218,9 @@ contract LiquidityToken is Context, IERC20 {
         _tTotal = _tTotal + amount;
         _tFeeTotal = _tFeeTotal + amount;
 
-        // uint256 tAmount;
-
-        // if (_isExcluded[account]) {
-        //     _tOwned[account] = _tOwned[account].add(amount);
-        // } else {
-        //     tAmount = tokenFromReflection(_rOwned[account]);
-        //     tAmount = tAmount.add(amount);
-        //     _rOwned[account] = tokenFromReflection(tAmount);
-        // }
-
         emit MintSuccess(amount);
     }
 
-    /**
-     * @dev Destroys `amount` tokens from `account`, reducing the
-     * total supply.
-     *
-     * Emits a {Transfer} event with `to` set to the zero address.
-     *
-     * Requirements:
-     *
-     * - `account` cannot be the zero address.
-     * - `account` must have at least `amount` tokens.
-     */
     function burn(uint256 amount) public onlyOwner canBurn {
         require(amount <= MAX, "exceeds limit");
 
@@ -848,8 +818,7 @@ contract LiquidityToken is Context, IERC20 {
         address to,
         uint256 amount
     ) internal virtual {
-        // require(sender != address(0), "ERC20: transfer from the zero address");
-        // require(to != address(0), "ERC20: transfer to the zero address");
+
         require(amount >= 0, "ERC20: transfer to the zero address");
 
         if (state.blacklistflag > 0) {
