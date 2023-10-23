@@ -40,7 +40,7 @@ contract StandardToken is Context, IERC20, IERC20Metadata {
     }
 
     modifier canPause() {
-        require(state.mintflag > 0, "Pausable: Disabled Pause");
+        require(state.pauseflag > 0, "Pausable: Disabled Pause");
         _;
     }
 
@@ -84,7 +84,7 @@ contract StandardToken is Context, IERC20, IERC20Metadata {
         SharedStructs.status memory _state
     ) {
         if(_state.taxamount > 0){
-            require(state.taxaddress != address(0), "tax address must be supplied");
+            require(_state.taxaddress != address(0), "tax address must be supplied");
         }
         _name = name_;
         _symbol = symbol_;

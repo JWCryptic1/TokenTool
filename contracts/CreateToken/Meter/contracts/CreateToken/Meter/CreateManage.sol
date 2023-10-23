@@ -24,9 +24,9 @@ contract CreateManage {
     LiquidityTokenFactory internal liquidityTokenFactory;
 
     event OwnerWithdrawSuccess(uint256 value);
-    event CreateStandardSuccess(address);
-    event setOwnerSucess(address);
-    event createLiquditySuccess(address);
+    event CreateStandardSuccess(address tokenAddress);
+    event setOwnerSucess(address ownerAddress);
+    event createLiquditySuccess(address tokenAddress);
     event SetFeeSuccess();
 
     // constructor(address _owner, address factory_addr, address router_Addr) {
@@ -38,14 +38,13 @@ contract CreateManage {
     ) {
         owner = _owner;
         
-        fee = 10000000000000000000;
+        fee = 100000000000000; //0.1 eth
 
         // factory_address = factory_addr;
         router_address = router_Addr;
 
         standardTokenFactory = _standardTokenFactory;
         liquidityTokenFactory = _liquidityTokenFactory;
-
     }
 
     function setOwner(address newowner) public {
