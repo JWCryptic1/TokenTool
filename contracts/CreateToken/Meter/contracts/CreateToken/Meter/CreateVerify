@@ -7,31 +7,43 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "./SharedStructs.sol";
 import "./StandardToken.sol";
+import "./LiquidityToken.sol";
 import "./StandardTokenFactory.sol";
+import "./LiquidityTokenFactory.sol";
 
 contract CreateManage {
     address public owner;
+
+    // address factory_address;
+    address router_address;
 
     mapping(address => address[]) tokens;
 
     uint256 public fee;
     StandardTokenFactory internal standardTokenFactory;
+    LiquidityTokenFactory internal liquidityTokenFactory;
 
     event OwnerWithdrawSuccess(uint256 value);
-    event CreateStandardSuccess(address tokenAddress);
-    event setOwnerSucess(address ownerAddress);
-    event createLiquditySuccess(address tokenAddress);
+    event CreateStandardSuccess(address);
+    event setOwnerSucess(address);
+    event createLiquditySuccess(address);
     event SetFeeSuccess();
 
+    // constructor(address _owner, address factory_addr, address router_Addr) {
     constructor(
         address _owner,
-        StandardTokenFactory _standardTokenFactory
+        address router_Addr
     ) {
         owner = _owner;
         
-        fee = 1000000; //0.1 eth
+        fee = 10000000000000000000;
 
-        standardTokenFactory = _standardTokenFactory;
+        // factory_address = factory_addr;
+        router_address = router_Addr;
+
+        standardTokenFactory = new StandardTokenFactory();
+        liquidityTokenFactory = new LiquidityTokenFactory();
+
     }
 
     function setOwner(address newowner) public {
@@ -44,6 +56,10 @@ contract CreateManage {
         fee = _fee;
         emit SetFeeSuccess();
     }
+
+    /*
+     * @notice Creates a new Presale contract and registers it in the PresaleFactory.sol.
+     */
 
     function createStandard(
         address creator_,
@@ -69,6 +85,38 @@ contract CreateManage {
         reciever.transfer(msg.value);
 
         emit CreateStandardSuccess(address(token));
+    }
+
+    function createLiquidity(
+        address creator_,
+        address reciever,
+        string memory name_,
+        string memory symbol_,
+        uint8 decimal_,
+        uint256 supply,
+        uint256 settingflag,
+        uint256[4] memory fees,
+        SharedStructs.status memory _state
+    ) public payable {
+        require(msg.value >= fee, "Balance is insufficent");
+
+        LiquidityToken token = liquidityTokenFactory.deploy(
+            router_address,
+            creator_,
+            reciever,
+            name_,
+            symbol_,
+            decimal_,
+            supply
+        );
+        token.setFee(settingflag, fees);
+        token.setStatus(_state);
+        tokens[creator_].push(address(token));
+
+        address payable owneraddress = payable(owner);
+        owneraddress.transfer(msg.value);
+
+        emit createLiquditySuccess(address(token));
     }
 
     function getBalance() public view returns (uint256) {

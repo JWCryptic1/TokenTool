@@ -10,11 +10,11 @@ async function main() {
   const standardFactory = await ethers.getContractFactory("StandardTokenFactory");
   const standard = await standardFactory.deploy();
 
-  const liquidityFactory = await ethers.getContractFactory("LiquidityTokenFactory");
-  const liquidity = await liquidityFactory.deploy();
+  const standardAddress = await standard.getAddress();
+  console.log(standardAddress);
 
-
-  const create = await ethers.deployContract("CreateManage", deployer.address, uniswaproutersepolia.address, standard.address, liquidity.address);
+  const createFactory = await ethers.getContractFactory("CreateManage");
+  const create = await createFactory.deploy(owner, standard);
 
   console.log("Token address:", await create.getAddress());
 }

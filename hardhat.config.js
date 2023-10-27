@@ -15,7 +15,7 @@ module.exports = {
   contractSizer: {
     alphaSort: true,
     disambiguatePaths: false,
-    runOnCompile: false,
+    runOnCompile: true,
     strict: true
   },
    etherscan: {
@@ -26,10 +26,12 @@ module.exports = {
   networks: {
     sepolia: {
       url: `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      gasPrice: 2000000000,
       accounts: [process.env.PRIVATE_KEY]
     },
     ethereum_mainnet: {
-      url: `https://mainnet.infura.io/${process.env.INFURA_API_KEY}`,
+      url: `https://ethereum.publicnode.com`,
+      gasPrice: 12000000000,
       accounts: [process.env.PRIVATE_KEY]
     },
     bsc_testnet: {
@@ -41,7 +43,7 @@ module.exports = {
     bsc_mainnet: {
       url: "https://bsc-dataseed.bnbchain.org/",
       chainId: 56,
-      gasPrice: 20000000000,
+      gasPrice: 3000000000,
       accounts: [process.env.PRIVATE_KEY]
     },
     pulse: {
@@ -69,7 +71,7 @@ module.exports = {
     goldXmainnet: {
       url:  " https://mainnet-rpc.goldxchain.io ",
       chainId: 42355,
-      gasPrice: 20000000000,
+      gasPrice: 400000000000,
       accounts: [process.env.PRIVATE_KEY]
     }
   }
